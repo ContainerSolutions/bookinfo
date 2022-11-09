@@ -10,12 +10,6 @@ Besides the expected functional endpoints, the API will expose these endpoints f
 | `/version`      | This endpoint simply reads the version.txt file inside the static folder. Normally version.txt will contain a token instead of a version number which can be replaced by the pipeline |
 | `/docs`         | This endpoint uses redoc interface to show the OpenAPI documentation of the API |
 
-## Pipeline
-Application's pipeline is built on Azure DevOps. It checks the gitlab repository every three seconds for changes, and triggers a new build if it detects a change in the codebase.
-Unit tests are automatically run by the pipeline.
-When everything goes as expected (unit tests pass and build succeeded), the binary, livesettings configuration and version file (with its token replaced with build number) are copied into a new `scratch` image and pushed to [repository](https://hub.docker.com/repository/docker/serdarkalayci/bookInfoapi).
-![Azure DevOps Pipeline1](img/pipeline-1.jpg) 
-![Azure DevOps Pipeline2](img/pipeline-2.jpg)
 ## Installation - docker compose
 Running the command below on a computer with docker running will run all the components, import the initial data to the database and everything will be ready to go!
 ```
