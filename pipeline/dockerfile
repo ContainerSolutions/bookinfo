@@ -1,0 +1,8 @@
+FROM scratch
+# Copy our static executable.
+COPY bookInfoAPI /go/bin/bookInfoAPI
+ADD static/version.txt /static/version.txt
+ADD configuration/livesettings.json /configuration/livesettings.json
+ENV BASE_URL :5550
+# Run the hello binary.
+ENTRYPOINT ["/go/bin/bookInfoAPI"]

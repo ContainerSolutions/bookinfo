@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: api
+  name: api
+  namespace: bookInfo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - image: serdarkalayci/bookInfoapi:39
+        name: bookInfo-api
+        env:
+        - name: BASE_URL
+          value: ":5550"
+        - name: JAEGER_AGENT_HOST
+          value: jaeger-agent.bookInfo.svc.cluster.local
+        - name: JAEGER_AGENT_PORT
+          value: "6831"
+        - name: JAEGER_SERVICE_NAME
+          value: bookInfoAPI
+        - name: ConnectionString
+          value: mongodb://{username}:{password}@mongodb.bookInfo.svc.cluster.local:27017
+        - name: DatabaseName
+          value: bookInfo
+        - name: DbUserName
+          valueFrom:
+            secretKeyRef:
+              name: mongo-credentials
+              key: username
+        - name: DbPassword
+          valueFrom:
+            secretKeyRef:
+              name: mongo-credentials
+              key: password
+        ports:
+        - containerPort: 5550
+        volumeMounts:
+          - name: api-livesettings
+            mountPath: /configuration
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 5550
+            scheme: HTTP
+          initialDelaySeconds: 3
+          timeoutSeconds: 2
+          periodSeconds: 3
+          successThreshold: 1
+          failureThreshold: 5
+        livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 5550
+              scheme: HTTP
+            initialDelaySeconds: 3
+            timeoutSeconds: 2
+            periodSeconds: 3
+            successThreshold: 1
+            failureThreshold: 5
+      restartPolicy: Always
+      volumes:
+        - name: api-livesettings
+          configMap:
+            name: api-livesettings

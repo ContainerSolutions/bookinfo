@@ -1,0 +1,16 @@
+apiVersion: v1
+metadata:
+  name: api-livesettings
+  namespace: bookInfo
+data:
+  livesettings.json: |-
+    {
+        "Logging": {
+            "LogLevel": {
+            "Default": "Info",
+            "System": "Info",
+            "Microsoft": "Info"
+            }
+        }
+    }
+kind: ConfigMap

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: api
+  name: api
+  namespace: bookInfo
+spec:
+  ports:
+  - name: "web"
+    port: 5550
+    targetPort: 5550
+  selector:
+    app: api
