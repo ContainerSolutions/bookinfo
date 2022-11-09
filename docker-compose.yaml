@@ -1,6 +1,6 @@
 version: '3.7'
 services:
-  bookInfoapi:
+  bookinfoapi:
     build: ./bookInfoAPI/.
     container_name: bookInfoAPI
     ports:
@@ -53,6 +53,7 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongoadmin
       MONGO_INITDB_ROOT_PASSWORD: secret
+      MONGO_INITDB_DATABASE: bookInfo
     volumes: 
       - ./mongodb:/docker-entrypoint-initdb.d/
       - dbdata:/data/db
@@ -67,6 +68,7 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: mongoadmin
       ME_CONFIG_MONGODB_ADMINPASSWORD: secret
+      ME_CONFIG_MONGODB_URL: mongodb://mongoadmin:secret@mongo:27017/
     depends_on: 
       - mongo
     networks:

@@ -1,0 +1,67 @@
+paths:
+  /:
+    get:
+      description: Returns OK if there's no problem
+      operationId: index
+      responses:
+        "200":
+          $ref: '#/responses/OK'
+      tags:
+      - Index
+  /health/live:
+    get:
+      description: Return 200 if the api is up and running
+      operationId: Live
+      responses:
+        "200":
+          $ref: '#/responses/OK'
+        "404":
+          $ref: '#/responses/errorResponse'
+      tags:
+      - Health
+  /health/ready:
+    get:
+      description: Return 200 if the api is up and running and connected to the database
+      operationId: Ready
+      responses:
+        "200":
+          $ref: '#/responses/OK'
+        "404":
+          $ref: '#/responses/errorResponse'
+      tags:
+      - Health
+  /people:
+    get:
+      description: Return all the bookInfos
+      operationId: GetBookInfos
+      responses:
+        "200":
+          $ref: '#/responses/OK'
+        "500":
+          $ref: '#/responses/errorResponse'
+      tags:
+      - BookInfo
+  /people/{id}:
+    get:
+      description: Return the the bookInfo with the given id
+      operationId: GetBookInfo
+      responses:
+        "200":
+          $ref: '#/responses/OK'
+        "400":
+          $ref: '#/responses/Bad'
+          description: Request
+        "500":
+          $ref: '#/responses/errorResponse'
+      tags:
+      - BookInfo
+  /version:
+    get:
+      description: Returns version information
+      operationId: version
+      responses:
+        "200":
+          $ref: '#/responses/OK'
+      tags:
+      - Index
+swagger: "2.0"

@@ -91,16 +91,8 @@ func (apiContext *APIContext) prepareContext(bindAddress *string) (*http.Server,
 	getR.HandleFunc("/health/live", apiContext.Live)
 	getR.HandleFunc("/health/ready", apiContext.Ready)
 	// BookInfo handlers
-	getR.HandleFunc("/people", apiContext.GetBookInfos)
-	getR.HandleFunc("/people/{id}", apiContext.GetBookInfo)
-	postPR := sm.Methods(http.MethodPost).Subrouter()
-	postPR.Use(apiContext.MiddlewareValidateNewBookInfo)
-	postPR.HandleFunc("/people", apiContext.AddBookInfo)
-	putPR := sm.Methods(http.MethodPut).Subrouter()
-	putPR.Use(apiContext.MiddlewareValidateNewBookInfo)
-	putPR.HandleFunc("/people/{id}", apiContext.UpdateBookInfo)
-	delPR := sm.Methods(http.MethodDelete).Subrouter()
-	delPR.HandleFunc("/people/{id}", apiContext.DeleteBookInfo)
+	getR.HandleFunc("/book", apiContext.GetBookInfos)
+	getR.HandleFunc("/book/{id}", apiContext.GetBookInfo)
 	// Documentation handler
 	opts := openapimw.RedocOpts{SpecURL: "/swagger.yaml"}
 	sh := openapimw.Redoc(opts, nil)

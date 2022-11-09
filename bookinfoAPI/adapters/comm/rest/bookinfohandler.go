@@ -1,15 +1,12 @@
 package rest
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/ContainerSolutions/bookinfo/bookInfoAPI/adapters/comm/rest/dto"
 	"github.com/ContainerSolutions/bookinfo/bookInfoAPI/adapters/comm/rest/mappers"
-	"github.com/ContainerSolutions/bookinfo/bookInfoAPI/adapters/comm/rest/middleware"
 	"github.com/ContainerSolutions/bookinfo/bookInfoAPI/application"
 	"github.com/gorilla/mux"
-	"github.com/rs/zerolog/log"
 )
 
 type validatedBookInfo struct{}

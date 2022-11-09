@@ -28,60 +28,6 @@ func (mh MockMongoHelper) FindOne(ctx context.Context, id string) (dao.BookInfoD
 	return GetFindOneFunc(ctx, id)
 }
 
-func TestBookInfoRepository_Delete_Error(t *testing.T) {
-	pr := BookInfoRepository{MockMongoHelper{}}
-	GetDeleteFunc = func(ctx context.Context, id string) (int, error) {
-		return 0, errors.New("Whatever error")
-	}
-	err := pr.Delete("id")
-	assert.EqualError(t, err, "Error deleting the bookInfo")
-}
-
-func TestBookInfoRepository_Delete_ResultNotOne(t *testing.T) {
-	pr := BookInfoRepository{MockMongoHelper{}}
-	GetDeleteFunc = func(ctx context.Context, id string) (int, error) {
-		return 0, nil
-	}
-	err := pr.Delete("this_id")
-	assert.EqualError(t, err, "Cannot find the bookInfo with the ID this_id")
-}
-
-func TestBookInfoRepository_Delete_ResultSuccess(t *testing.T) {
-	pr := BookInfoRepository{MockMongoHelper{}}
-	GetDeleteFunc = func(ctx context.Context, id string) (int, error) {
-		return 1, nil
-	}
-	err := pr.Delete("this_id")
-	assert.Nil(t, err)
-}
-
-func TestBookInfoRepository_Update_Error(t *testing.T) {
-	pr := BookInfoRepository{MockMongoHelper{}}
-	GetUpdateFunc = func(ctx context.Context, id string, update interface{}) (int, error) {
-		return 0, errors.New("Whatever error")
-	}
-	err := pr.Update("id", domain.BookInfo{})
-	assert.EqualError(t, err, "Error updating the bookInfo")
-}
-
-func TestBookInfoRepository_Update_ResultNotOne(t *testing.T) {
-	pr := BookInfoRepository{MockMongoHelper{}}
-	GetUpdateFunc = func(ctx context.Context, id string, update interface{}) (int, error) {
-		return 0, nil
-	}
-	err := pr.Update("this_id", domain.BookInfo{})
-	assert.EqualError(t, err, "Cannot find the bookInfo with the ID this_id")
-}
-
-func TestBookInfoRepository_Update_ResultSuccess(t *testing.T) {
-	pr := BookInfoRepository{MockMongoHelper{}}
-	GetUpdateFunc = func(ctx context.Context, id string, update interface{}) (int, error) {
-		return 1, nil
-	}
-	err := pr.Update("id", domain.BookInfo{})
-	assert.Nil(t, err)
-}
-
 func TestBookInfoRepository_FindOne_Error(t *testing.T) {
 	pr := BookInfoRepository{MockMongoHelper{}}
 	GetFindOneFunc = func(ctx context.Context, id string) (dao.BookInfoDAO, error) {
@@ -96,54 +42,16 @@ func TestBookInfoRepository_FindOne_Success(t *testing.T) {
 	pr := BookInfoRepository{MockMongoHelper{}}
 	GetFindOneFunc = func(ctx context.Context, id string) (dao.BookInfoDAO, error) {
 		return dao.BookInfoDAO{
-			ID:                      "id",
-			Name:                    "name",
-			BookInfoClass:           1,
-			Sex:                     "male",
-			Age:                     34,
-			Survived:                false,
-			SiblingsOrSpousesAboard: 3,
-			ParentsOrChildrenAboard: 2,
-			Fare:                    4.97,
+			ID:     "id",
+			Name:   "name",
+			Author: "author",
 		}, nil
 	}
 	pDAO, err := pr.Get("this_id")
 	assert.Equal(t, pDAO, domain.BookInfo{
-		ID:                      "id",
-		Name:                    "name",
-		BookInfoClass:           1,
-		Sex:                     "male",
-		Age:                     34,
-		Survived:                false,
-		SiblingsOrSpousesAboard: 3,
-		ParentsOrChildrenAboard: 2,
-		Fare:                    4.97,
-	})
-	assert.Nil(t, err)
-}
-
-func TestBookInfoRepository_InsertOne_Error(t *testing.T) {
-	pr := BookInfoRepository{MockMongoHelper{}}
-	GetInsertOneFunc = func(ctx context.Context, document interface{}) (string, error) {
-		return "", errors.New("Whatever error")
-	}
-	bookInfo, err := pr.Add(domain.BookInfo{
-		ID: "this_id",
-	})
-	assert.Equal(t, bookInfo, domain.BookInfo{})
-	assert.EqualError(t, err, "Cannot insert the bookInfo")
-}
-
-func TestBookInfoRepository_InsertOne_Success(t *testing.T) {
-	pr := BookInfoRepository{MockMongoHelper{}}
-	GetInsertOneFunc = func(ctx context.Context, document interface{}) (string, error) {
-		return "new_id", nil
-	}
-	bookInfo, err := pr.Add(domain.BookInfo{
-		ID: "this_id",
-	})
-	assert.Equal(t, bookInfo, domain.BookInfo{
-		ID: "this_id",
+		ID:     "id",
+		Name:   "name",
+		Author: "author",
 	})
 	assert.Nil(t, err)
 }
@@ -162,26 +70,14 @@ func TestBookInfoRepository_List_Success(t *testing.T) {
 	pr := BookInfoRepository{MockMongoHelper{}}
 	pDAOs := []dao.BookInfoDAO{
 		dao.BookInfoDAO{
-			ID:                      "id1",
-			Name:                    "name1",
-			BookInfoClass:           1,
-			Sex:                     "male",
-			Age:                     14,
-			Survived:                false,
-			SiblingsOrSpousesAboard: 1,
-			ParentsOrChildrenAboard: 2,
-			Fare:                    1.97,
+			ID:     "id1",
+			Name:   "name1",
+			Author: "author1",
 		},
 		dao.BookInfoDAO{
-			ID:                      "id2",
-			Name:                    "name2",
-			BookInfoClass:           2,
-			Sex:                     "male",
-			Age:                     24,
-			Survived:                false,
-			SiblingsOrSpousesAboard: 2,
-			ParentsOrChildrenAboard: 3,
-			Fare:                    2.97,
+			ID:     "id2",
+			Name:   "name2",
+			Author: "author2",
 		},
 	}
 
@@ -192,26 +88,14 @@ func TestBookInfoRepository_List_Success(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, result, []domain.BookInfo{
 		domain.BookInfo{
-			ID:                      "id1",
-			Name:                    "name1",
-			BookInfoClass:           1,
-			Sex:                     "male",
-			Age:                     14,
-			Survived:                false,
-			SiblingsOrSpousesAboard: 1,
-			ParentsOrChildrenAboard: 2,
-			Fare:                    1.97,
+			ID:     "id1",
+			Name:   "name1",
+			Author: "author1",
 		},
 		domain.BookInfo{
-			ID:                      "id2",
-			Name:                    "name2",
-			BookInfoClass:           2,
-			Sex:                     "male",
-			Age:                     24,
-			Survived:                false,
-			SiblingsOrSpousesAboard: 2,
-			ParentsOrChildrenAboard: 3,
-			Fare:                    2.97,
+			ID:     "id2",
+			Name:   "name2",
+			Author: "author2",
 		},
 	})
 }

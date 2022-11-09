@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/ContainerSolutions/bookinfo/bookInfoAPI/adapters/comm/rest/dto"
 	"github.com/ContainerSolutions/bookinfo/bookInfoAPI/application"
 	"github.com/rs/zerolog/log"
 )

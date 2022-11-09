@@ -6,14 +6,14 @@ import (
 	"os/signal"
 	"time"
 
-	rest "github.com/ContainerSolutions/bookinfo/bookinfoAPI/adapters/comm/rest"
+	rest "github.com/ContainerSolutions/bookinfo/bookInfoAPI/adapters/comm/rest"
 
-	mongodb "github.com/ContainerSolutions/bookinfo/bookinfoAPI/adapters/data/mongodb"
+	mongodb "github.com/ContainerSolutions/bookinfo/bookInfoAPI/adapters/data/mongodb"
 	"github.com/nicholasjackson/env"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
-	util "github.com/ContainerSolutions/bookinfo/bookinfoAPI/util"
+	util "github.com/ContainerSolutions/bookinfo/bookInfoAPI/util"
 )
 
 var bindAddress = env.String("BASE_URL", false, ":5500", "Bind address for rest server")
@@ -29,7 +29,7 @@ func main() {
 		os.Exit(1)
 	}
 	//s := rest.NewAPIContext(dbContext, bindAddress)
-	s, closer := rest.NewAPIContext(bindAddress, dbContext.HealthRepository, dbContext.PassengerRepository)
+	s, closer := rest.NewAPIContext(bindAddress, dbContext.HealthRepository, dbContext.BookInfoRepository)
 	defer closer.Close()
 	// start the http server
 	go func() {

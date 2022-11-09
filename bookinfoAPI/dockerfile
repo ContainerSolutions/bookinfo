@@ -18,8 +18,10 @@ RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-w -s" -o /go/bin/b
 FROM scratch
 # Copy our static executable.
 COPY --from=builder /go/bin/bookInfoAPI /go/bin/bookInfoAPI
-ADD static/version.txt /static/version.txt
-ADD configuration/livesettings.json /configuration/livesettings.json
+WORKDIR /go/bin/
+ADD static/version.txt static/version.txt
+ADD configuration/livesettings.json configuration/livesettings.json
+ADD swagger.yaml swagger.yaml
 ENV BASE_URL :5550
 # Run the hello binary.
 ENTRYPOINT ["/go/bin/bookInfoAPI"]
