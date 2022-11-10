@@ -8,21 +8,10 @@ paths:
                     $ref: '#/responses/OK'
             tags:
                 - Index
-    /book:
-        get:
-            description: Return all the bookInfos
-            operationId: GetBookInfos
-            responses:
-                "200":
-                    $ref: '#/responses/OK'
-                "500":
-                    $ref: '#/responses/errorResponse'
-            tags:
-                - BookInfo
     /book/{id}:
         get:
             description: Return the the bookInfo with the given id
-            operationId: GetBookInfo
+            operationId: GetBookStock
             responses:
                 "200":
                     $ref: '#/responses/OK'
@@ -32,7 +21,7 @@ paths:
                 "500":
                     $ref: '#/responses/errorResponse'
             tags:
-                - BookInfo
+                - BookStock
     /health/live:
         get:
             description: Return 200 if the api is up and running

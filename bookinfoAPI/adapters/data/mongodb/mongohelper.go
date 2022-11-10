@@ -7,6 +7,7 @@ import (
 	"github.com/ContainerSolutions/bookinfo/bookInfoAPI/application"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -28,7 +29,12 @@ func (mh mongoHelper) Find(ctx context.Context) ([]dao.BookInfoDAO, error) {
 
 func (mh mongoHelper) FindOne(ctx context.Context, id string) (dao.BookInfoDAO, error) {
 	var bookInfoDAO dao.BookInfoDAO
-	err := mh.coll.FindOne(ctx, bson.M{"_id": id}).Decode(&bookInfoDAO)
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		log.Error().Err(err).Msgf("ID format incorrect")
+		return dao.BookInfoDAO{}, &application.ErrorCannotFindBookInfo{ID: id}
+	}
+	err = mh.coll.FindOne(ctx, bson.M{"_id": objID}).Decode(&bookInfoDAO)
 	if err != nil {
 		log.Error().Err(err).Msgf("Error getting BookInfo")
 		return dao.BookInfoDAO{}, &application.ErrorCannotFindBookInfo{ID: id}

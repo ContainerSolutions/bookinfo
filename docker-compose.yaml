@@ -15,7 +15,22 @@ services:
       DbUserName: mongoadmin
       DbPassword: secret
     networks:
-      - bookInfo-network      
+      - bookInfo-network
+  bookstockapi:
+    build: ./bookStockAPI/.
+    container_name: bookStockAPI
+    ports:
+      - "5555:5555"
+    environment: 
+      BASE_URL : ":5555"
+      JAEGER_AGENT_HOST : "jaeger"
+      JAEGER_AGENT_PORT : 6831
+      JAEGER_SERVICE_NAME: bookStockAPI
+      ConnectionString: "redis:6379"
+      DatabaseName: 0
+      DbPassword: secret
+    networks:
+      - bookInfo-network          
   jaeger:
     image: jaegertracing/all-in-one:latest
     container_name: bookinfo_jaeger
@@ -45,7 +60,7 @@ services:
     networks:
       - bookInfo-network      
   mongo:
-    image: mongo
+    build: ./mongodb/.
     container_name: bookInfo-mongo
     restart: always
     ports:
@@ -55,8 +70,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: secret
       MONGO_INITDB_DATABASE: bookInfo
     volumes: 
-      - ./mongodb:/docker-entrypoint-initdb.d/
-      - dbdata:/data/db
+      - bookinfo-mongodata:/data/db
     networks:
       - bookInfo-network
   mongo-express:
@@ -72,9 +86,22 @@ services:
     depends_on: 
       - mongo
     networks:
-      - bookInfo-network       
+      - bookInfo-network
+  redis:
+    build: ./redis/.
+    container_name: bookInfo-redis
+    restart: always
+    ports:
+      - 6379:6379
+    volumes:
+      - bookinfo-redisdata:/data
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    networks:
+      - bookInfo-network      
 networks:
   bookInfo-network:    
 volumes:
-  dbdata:
+  bookinfo-mongodata:
   grafana-storage:
+  bookinfo-redisdata:

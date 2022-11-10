@@ -11,7 +11,7 @@ import (
 
 type validatedBookInfo struct{}
 
-// swagger:route GET /people BookInfo GetBookInfos
+// swagger:route GET /book BookInfo GetBookInfos
 // Return all the bookInfos
 // responses:
 //	200: OK
@@ -37,7 +37,7 @@ func (ctx *APIContext) GetBookInfos(rw http.ResponseWriter, r *http.Request) {
 
 }
 
-// swagger:route GET /people/{id} BookInfo GetBookInfo
+// swagger:route GET /book/{id} BookInfo GetBookInfo
 // Return the the bookInfo with the given id
 // responses:
 //	200: OK

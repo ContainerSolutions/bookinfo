@@ -1,3 +1,6 @@
 .vscode
 **/*.DS_Store
 bookInfoAPI/bookInfoAPI
+bookInfoAPI/__debug_bin
+bookStockAPI/bookStockAPI
+bookStockAPI/__debug_bin
