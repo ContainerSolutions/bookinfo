@@ -1,7 +1,9 @@
 package rest
 
 import (
+	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/ContainerSolutions/bookinfo/bookStockAPI/adapters/comm/rest/mappers"
 	"github.com/ContainerSolutions/bookinfo/bookStockAPI/application"
@@ -19,6 +21,11 @@ type validatedBookStock struct{}
 
 // GetBookStock gets the bookInfos of the BookStock with the given id
 func (ctx *APIContext) GetBookStock(rw http.ResponseWriter, r *http.Request) {
+	if ctx.delay {
+		rand.Seed(time.Now().UnixNano())
+		dly := rand.Intn(5) + 3
+		time.Sleep(time.Duration(dly) * time.Second)
+	}
 	span := createSpan("BookStock.GetOne", r)
 	defer span.Finish()
 

@@ -18,7 +18,9 @@ services:
     networks:
       - bookInfo-network
   bookstockapi:
-    build: ./bookStockAPI/.
+    build: 
+      context: ./bookStockAPI/.
+      dockerfile: v2.dockerfile
     container_name: bookStockAPI
     ports:
       - "5555:5555"

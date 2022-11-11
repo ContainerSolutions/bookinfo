@@ -31,14 +31,16 @@ type APIContext struct {
 	healthRepo    application.HealthRepository
 	bookInfoRepo  application.BookStockRepository
 	configuration map[string]string
+	delay         bool
 }
 
 // NewAPIContext returns a new APIContext handler with the given logger
 // func NewAPIContext(dc DBContext, bindAddress *string, ur application.UserRepository) *http.Server {
-func NewAPIContext(bindAddress *string, hr application.HealthRepository, pr application.BookStockRepository) (*http.Server, io.Closer) {
+func NewAPIContext(bindAddress *string, hr application.HealthRepository, pr application.BookStockRepository, dly bool) (*http.Server, io.Closer) {
 	apiContext := &APIContext{
 		healthRepo:   hr,
 		bookInfoRepo: pr,
+		delay:        dly,
 	}
 	s, c := apiContext.prepareContext(bindAddress)
 	return s, c

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"os"
 	"os/signal"
 	"time"
@@ -17,19 +18,21 @@ import (
 )
 
 var bindAddress = env.String("BASE_URL", false, ":5500", "Bind address for rest server")
+var delay = flag.Bool("delay", false, "Delay the response by some random seconds")
 
 func main() {
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	util.SetLogLevels()
 	env.Parse()
+	flag.Parse()
 	//dbContext := memory.NewDataContext()
 	dbContext, err := mongodb.NewDataContext()
 	if err != nil {
 		log.Fatal().Msg("Error received from data source. Quitting")
 		os.Exit(1)
 	}
-	//s := rest.NewAPIContext(dbContext, bindAddress)
-	s, closer := rest.NewAPIContext(bindAddress, dbContext.HealthRepository, dbContext.BookStockRepository)
+	log.Debug().Msgf("Starting bookStockAPI with delay %v", *delay)
+	s, closer := rest.NewAPIContext(bindAddress, dbContext.HealthRepository, dbContext.BookStockRepository, *delay)
 	defer closer.Close()
 	// start the http server
 	go func() {
