@@ -10,6 +10,7 @@ services:
       JAEGER_AGENT_HOST : "jaeger"
       JAEGER_AGENT_PORT : 6831
       JAEGER_SERVICE_NAME: bookInfoAPI
+      STOCK_URL: "http://bookstockapi:5555"
       ConnectionString: "mongodb://{username}:{password}@mongo:27017"
       DatabaseName: bookInfo
       DbUserName: mongoadmin

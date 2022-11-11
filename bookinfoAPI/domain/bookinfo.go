@@ -8,4 +8,6 @@ type BookInfo struct {
 	Name string
 	// Author of the book
 	Author string
+	// CurrentStock of the book
+	CurrentStock int
 }

@@ -1,12 +1,17 @@
 package rest
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/ContainerSolutions/bookinfo/bookInfoAPI/adapters/comm/rest/dto"
 	"github.com/ContainerSolutions/bookinfo/bookInfoAPI/adapters/comm/rest/mappers"
 	"github.com/ContainerSolutions/bookinfo/bookInfoAPI/application"
 	"github.com/gorilla/mux"
+	opentracing "github.com/opentracing/opentracing-go"
 )
 
 type validatedBookInfo struct{}
@@ -19,7 +24,7 @@ type validatedBookInfo struct{}
 
 // GetBookInfos gets all the bookInfos of the BookInfo
 func (ctx *APIContext) GetBookInfos(rw http.ResponseWriter, r *http.Request) {
-	span := createSpan("BookInfo.ListAll", r)
+	span, _ := createSpan("BookInfo.ListAll", r)
 	defer span.Finish()
 
 	bookInfoService := application.NewBookInfoService(ctx.bookInfoRepo)
@@ -46,7 +51,7 @@ func (ctx *APIContext) GetBookInfos(rw http.ResponseWriter, r *http.Request) {
 
 // GetBookInfo gets the bookInfos of the BookInfo with the given id
 func (ctx *APIContext) GetBookInfo(rw http.ResponseWriter, r *http.Request) {
-	span := createSpan("BookInfo.GetOne", r)
+	span, tracer := createSpan("BookInfo.GetOne", r)
 	defer span.Finish()
 
 	// parse the BookInfo id from the url
@@ -54,6 +59,32 @@ func (ctx *APIContext) GetBookInfo(rw http.ResponseWriter, r *http.Request) {
 	id := vars["id"]
 	bookInfoService := application.NewBookInfoService(ctx.bookInfoRepo)
 	bookInfo, err := bookInfoService.Get(id)
+	if err != nil {
+		respondWithError(rw, r, 500, "Cannot get bookInfo from database")
+		return
+	}
+	// Call stocks service
+	url := os.Getenv("STOCK_URL")
+	if url == "" {
+		url = "http://localhost:5555"
+	}
+
+	url = url + "/book/" + id
+	// First prepare the tracing info
+	netClient := &http.Client{Timeout: time.Second * 10}
+	req, _ := http.NewRequest("GET", url, nil)
+	// Inject the client span context into the headers
+	tracer.Inject(span.Context(), opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(req.Header))
+	stockresponse, err := netClient.Do(req)
+
+	stockInfo := &dto.StockInfo{
+		CurrentStock: 0,
+	}
+	if err == nil {
+		buf, _ := ioutil.ReadAll(stockresponse.Body)
+		json.Unmarshal(buf, &stockInfo)
+	}
+	bookInfo.CurrentStock = stockInfo.CurrentStock
 	if err != nil {
 		switch err.(type) {
 		case *application.ErrorIDFormat:

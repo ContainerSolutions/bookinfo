@@ -9,4 +9,10 @@ type BookInfoResponseDTO struct {
 	Name string `json:"name"`
 	// Author of the book
 	Author string `json:"author"`
+	// CurrentStock of the book
+	CurrentStock int `json:"currentStock"`
+}
+
+type StockInfo struct {
+	CurrentStock int `json:"currentStock"`
 }

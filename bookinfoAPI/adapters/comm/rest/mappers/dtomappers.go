@@ -7,8 +7,9 @@ import (
 
 func MapBookInfo2BookInfoResponseDTO(p domain.BookInfo) dto.BookInfoResponseDTO {
 	return dto.BookInfoResponseDTO{
-		ID:     p.ID,
-		Name:   p.Name,
-		Author: p.Author,
+		ID:           p.ID,
+		Name:         p.Name,
+		Author:       p.Author,
+		CurrentStock: p.CurrentStock,
 	}
 }

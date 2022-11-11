@@ -116,9 +116,9 @@ func (apiContext *APIContext) prepareContext(bindAddress *string) (*http.Server,
 }
 
 // createSpan creates a new openTracing.Span with the given name and returns it
-func createSpan(spanName string, r *http.Request) (span opentracing.Span) {
+func createSpan(spanName string, r *http.Request) (opentracing.Span, opentracing.Tracer) {
 	tracer := opentracing.GlobalTracer()
-
+	var span opentracing.Span
 	wireContext, err := opentracing.GlobalTracer().Extract(
 		opentracing.HTTPHeaders,
 		opentracing.HTTPHeadersCarrier(r.Header))
@@ -134,5 +134,5 @@ func createSpan(spanName string, r *http.Request) (span opentracing.Span) {
 	ext.SpanKindRPCClient.Set(span)
 	ext.HTTPUrl.Set(span, r.URL.RequestURI())
 	ext.HTTPMethod.Set(span, r.Method)
-	return span
+	return span, tracer
 }
