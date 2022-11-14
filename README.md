@@ -17,17 +17,14 @@ docker compose up --build --force-recreate
 ```
 ### Mongo Express
 `http://localhost:8081` address will let you access to the Mongo Express interface. The `bookInfo` database would be populated from the initial data.
-![Mongo Express](img/mongo-express.jpg)
+
 
 ### Prometheus data on Grafana
 `http://localhost:3000` address will let you access to Grafana interface. The default username and password is `admin`. It'll require that you change the password on the first run. Later on you have to define a Data Source, adding `http://prometheus:9090` will give access to the data on Prometheus, and you can define dashboards using these data.
-![Prometheus data on Grafana 1](img/prometheus-1.jpg)
-![Prometheus data on Grafana 2](img/prometheus-2.jpg)
+
 
 ### Tracing with Jaeger
 `http://localhost:16686` address will let you access the Jaeger interface. After sending some requests to the API, Jaeger interface will show these requests as traces.
-![Jaeger 1](img/jaeger-ui-1.jpg)
-![Jaeger 2](img/jaeger-ui-2.jpg)
 
 ## Installation - kubernetes
 
@@ -89,7 +86,7 @@ This yaml creates the jaeger-all-in-one instance and services for agent, collect
 
 ### 11 - Jaeger Ingress
 Creates an ingress to let clients outside the cluster to access Jaeger Query Service using `jaeger.bookInfo.io` domain name. Sample Jaeger UI screenshot can be seen using this endpoint below:
-![Jaeger-k8s](img/jaeger-k8s.jpg)
+![Jaeger-k8s](img/jaeger.jpg)
 
 ### 12 - API Livesettings
 The api reads its log level from a file named `livesettings.json` under `configuration` folder. This yaml creates a configmap containing this file as the data and this configmap will be mounted to api pods' `configuration` folder to enable changing the log level by updating the configmap.
@@ -135,5 +132,4 @@ Creates a service to allow the other services to access Grafana pods using 3000 
 
 ### 15 - API Ingress
 Creates an ingress to let clients outside the cluster to access Grafana Service using `grf.bookInfo.io` domain name. After accessing the Grafana UI and logging in using default credentials `username: admin, password: admin`, the Prometheus instance can be added as a data source by addressing it using Prometheus Service address `http://prometheus.bookInfo.svc.cluster.local:9090` and various metrics can be displayed on Dashboards as seen below:
-![Grafana-k8s-1](img/prometheus-k8s.jpg)
-![Grafana-k8s-2](img/prometheus-k8s-2.jpg)
+![Grafana-k8s](img/prom-grafana.jpg)
