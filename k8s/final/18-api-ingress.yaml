@@ -2,16 +2,16 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress
-  namespace: bookInfo
 spec:
+  ingressClassName: nginx
   rules:
-  - host: api.bookInfo.io
+  - host: boookinfo.localdev.me
     http:
       paths:
       - pathType: Prefix
         path: "/"
         backend:
           service:
-            name: api
+            name: infoapi
             port:
               number: 5550

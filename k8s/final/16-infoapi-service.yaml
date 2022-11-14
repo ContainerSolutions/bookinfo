@@ -2,13 +2,13 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: api
-  name: api
-  namespace: bookInfo
+    app: infoapi
+    layer: api
+  name: infoapi
 spec:
   ports:
   - name: "web"
     port: 5550
     targetPort: 5550
   selector:
-    app: api
+    app: infoapi

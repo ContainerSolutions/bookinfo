@@ -19,7 +19,7 @@ spec:
         image: mongo-express
         env:
           - name: ME_CONFIG_MONGODB_SERVER
-            value: mongodb.bookInfo.svc.cluster.local
+            value: mongodb.bookinfo.svc.cluster.local
           - name: ME_CONFIG_MONGODB_ADMINUSERNAME
             valueFrom:
               secretKeyRef:

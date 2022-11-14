@@ -1,17 +1,17 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: grafanaingress
-  namespace: bookInfo
+  name: jaegeringress
 spec:
+  ingressClassName: nginx
   rules:
-  - host: grf.bookInfo.io
+  - host: jaeger.localdev.me
     http:
       paths:
       - pathType: Prefix
         path: "/"
         backend:
           service:
-            name: grafana
+            name: jaeger-query
             port:
-              number: 3000
+              number: 16686

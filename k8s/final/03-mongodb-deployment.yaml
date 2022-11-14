@@ -2,7 +2,6 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: mongodb
-  namespace: bookInfo
   labels:
     app: mongodb
 spec:
@@ -31,18 +30,8 @@ spec:
                 secretKeyRef:
                   name: mongo-credentials
                   key: password              
-          volumeMounts:
-            - name: mongodb-data
-              mountPath: /var/lib/mongodb/data
-            - name: mongodb-init
-              mountPath: /docker-entrypoint-initdb.d              
-          image: mongo
-      volumes:
-        - name: mongodb-data
-          persistentVolumeClaim:
-            claimName: mongodb
-        - name: mongodb-init
-          configMap:
-            name: mongo-init                      
+            - name: MONGO_INITDB_DATABASE
+              value: bookInfo
+          image: serdarkalayci/bookinfo-mongo:0.1
       restartPolicy: Always
       terminationGracePeriodSeconds: 30

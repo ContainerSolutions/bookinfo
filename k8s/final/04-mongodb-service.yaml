@@ -4,7 +4,6 @@ metadata:
   labels:
     app: mongodb
   name: mongodb
-  namespace: bookInfo
 spec:
   ports:
   - port: 27017

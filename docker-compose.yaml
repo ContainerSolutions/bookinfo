@@ -20,7 +20,7 @@ services:
   bookstockapi:
     build: 
       context: ./bookStockAPI/.
-      dockerfile: v2.dockerfile
+      dockerfile: v1.dockerfile
     container_name: bookStockAPI
     ports:
       - "5555:5555"

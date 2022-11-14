@@ -2,54 +2,47 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: api
-  name: api
-  namespace: bookInfo
+    app: stockapi
+    layer: api
+    version: "2"
+  name: stockapi2
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: api
+      app: stockapi
+      version: "2"
   template:
     metadata:
       labels:
-        app: api
+        app: stockapi
+        version: "2"
     spec:
       containers:
-      - image: serdarkalayci/bookInfoapi:39
-        name: bookInfo-api
+      - image: serdarkalayci/bookinfo-stock:1.2
+        name: bookstock-api
         env:
         - name: BASE_URL
-          value: ":5550"
+          value: ":5555"
         - name: JAEGER_AGENT_HOST
-          value: jaeger-agent.bookInfo.svc.cluster.local
+          value: jaeger-agent
         - name: JAEGER_AGENT_PORT
           value: "6831"
         - name: JAEGER_SERVICE_NAME
-          value: bookInfoAPI
+          value: bookStockAPI2
         - name: ConnectionString
-          value: mongodb://{username}:{password}@mongodb.bookInfo.svc.cluster.local:27017
+          value: redis:6379
         - name: DatabaseName
-          value: bookInfo
-        - name: DbUserName
-          valueFrom:
-            secretKeyRef:
-              name: mongo-credentials
-              key: username
-        - name: DbPassword
-          valueFrom:
-            secretKeyRef:
-              name: mongo-credentials
-              key: password
+          value: "0"
         ports:
-        - containerPort: 5550
+        - containerPort: 5555
         volumeMounts:
           - name: api-livesettings
             mountPath: /configuration
         readinessProbe:
           httpGet:
             path: /health/ready
-            port: 5550
+            port: 5555
             scheme: HTTP
           initialDelaySeconds: 3
           timeoutSeconds: 2
@@ -59,7 +52,7 @@ spec:
         livenessProbe:
             httpGet:
               path: /health/live
-              port: 5550
+              port: 5555
               scheme: HTTP
             initialDelaySeconds: 3
             timeoutSeconds: 2
