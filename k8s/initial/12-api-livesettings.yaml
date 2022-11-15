@@ -1,0 +1,13 @@
+apiVersion: v1
+metadata:
+  name: api-livesettings
+data:
+  livesettings.json: |-
+    {
+        "Logging": {
+            "LogLevel": {
+            "Default": "Fatal"
+            }
+        }
+    }
+kind: ConfigMap

@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: infoapi
+    layer: api
+  name: infoapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: infoapi
+  template:
+    metadata:
+      labels:
+        app: infoapi
+    spec:
+      containers:
+      - image: serdarkalayci/bookinfo-info:0.1
+        name: bookinfo-api
+        env:
+        - name: BASE_URL
+          value: ":5550"
+        - name: STOCK_URL
+          value: "http://stockapi:5555"
+        - name: ConnectionString
+          value: mongodb://{username}:{password}@mongodb.svc:27017
+        - name: DatabaseName
+          value: bookInfo
+        - name: DbUserName
+          valueFrom:
+            secretKeyRef:
+              name: mongo-credentials
+              key: username
+        - name: DbPassword
+          valueFrom:
+            secretKeyRef:
+              name: mongo-credentials
+              key: password
+        ports:
+        - containerPort: 5550
+        volumeMounts:
+          - name: api-livesettings
+            mountPath: /go/bin/configuration
+      restartPolicy: Always
+      volumes:
+        - name: api-livesettings
+          configMap:
+            name: api-livesettings

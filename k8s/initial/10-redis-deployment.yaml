@@ -1,0 +1,27 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: redis
+  labels:
+    app: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:     
+      containers:
+        - name: redis
+          image: serdarkalayci/bookinfo-redis:0.1        
+          ports:
+            - containerPort: 6379
+              protocol: TCP
+          env:
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "yes"         
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
