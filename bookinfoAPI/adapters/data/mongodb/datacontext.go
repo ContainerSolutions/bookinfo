@@ -2,6 +2,7 @@ package mongodb
 
 import (
 	"context"
+	"os"
 	"strings"
 	"time"
 
@@ -37,12 +38,14 @@ func NewDataContext() (DataContext, error) {
 	err = client.Connect(ctx)
 	if err != nil {
 		log.Error().Err(err).Msgf("An error occured while connecting to tha database")
+		os.Exit(1)
 	} else {
 		// Check the connection
 		err = client.Ping(ctx, nil)
 
 		if err != nil {
 			log.Error().Err(err).Msg("An error occured while connecting to tha database")
+			os.Exit(1)
 		} else {
 			log.Info().Msg("Connected to MongoDB!")
 		}
