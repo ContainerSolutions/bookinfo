@@ -2,7 +2,7 @@
 
 ⚠️ WARNING: This file explains steps to be taken to complete the lab. Do not read this file until you have attempted the lab yourself.
 
-## Step 5: Check the single book information
+## Step 6: Check the single book information
 We have to make sure the other endpoints are working as well. Let's try to get the information of a single book.
 ```bash
 curl http://bookinfo.localdev.me/book/5f1b9b9b9b9b9b9b9b9b9b9b
@@ -51,125 +51,118 @@ Response time histogram:
   0.330 [1]	    |
 ```
 We can clearly see that the response time is very low, which means that the problem is not in the infoAPI. We have to check the stockAPI, but it does not have an ingress on its own.
-We should notice there's a line in the log of the infoAPI mentioning tracer config not found on the environment variables. And if you set the log level to `Info` you'll see what environment variables have to be set in order to get the tracer working.
-```bash
-{"level":"error","time":"2022-11-16T08:23:08Z","message":"Cannot load tracer config from env"}
-{"level":"info","time":"2022-11-16T10:26:07+01:00","message":"Tracer configuration can be set via the following environment variables JAEGER_AGENT_HOST - the host name of the jaeger agent JAEGER_AGENT_PORT - the port number of the jaeger agent JAEGER_SERVICE_NAME - the name of the service to report to the jaeger agent (e.g. bookInfoAPI)"}
-```
+It's good to see these information via the load testing tool, but this also means that our customers are also suffering from this problem and we were not aware of it until we run our load testing tool. We need to find a way to monitor our services and get notified when something goes wrong.  
 
-## Step 6: Enter tracing
-Tracing is a very useful tool to find out what's going on in your application. It allows you to see the flow of requests through your application. In this case we can see which requests are slow and which are fast. We can also see which requests are made to the stockAPI. We will be using Jaeger for this. Jaeger is an open source tracing system. It is very easy to use and has a very nice UI. It is also very easy to integrate with your application. We will be using the Jaeger All-In-One pod for its simplicity for demonstrative purpose only, but usually Jaeger Operator is used to install Jaeger. 
+## Step 7: Add Prometheus
+The startup logs of our application clearly shows that it has an endpoint called `/metrics` which exposes metrics compatible with [Open Metrics](https://openmetrics.io/) which is is a sandbox project of [Cloud Native Computing Foundation](https://www.cncf.io/). [Prometheus](https://prometheus.io/), which is a graduate project of CNCF can consume this endpoint and store the metrics in a time series database. [Grafana](https://grafana.com/) is a tool that can be used to visualize the metrics stored in Prometheus. We will use these tools to monitor our services and get notified when something goes wrong.
+We can deploy Prometheus using Prometheus Operator with the following command.
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/ContainerSolutions/bookinfo/main/k8s/final/08-jaeger-all-in-one.yaml
+kubectl create -f https://raw.githubusercontent.com/ContainerSolutions/bookinfo/main/k8s/final/prom-bundle/prom-bundle.yaml
 ```
-and we'll create an ingress for Jaeger to take a look at its UI.
+It can take a few minutes for the operator to be up and running. We can check for completion with the following command:
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/ContainerSolutions/bookinfo/main/k8s/final/09-jaeger-ingress.yaml
+kubectl wait --for=condition=Ready pods -l  app.kubernetes.io/name=prometheus-operator -n default
 ```
-Now we can add those environment variables to the API deployments (there should be 3 of them), which automatically restart the corresponding pods, and apply the load again.
+Prometheus needs some rights to access resources on our namespace. By default it uses the `ServiceAccount` named `prometheus`. If it's not created yet, we can create it with the following command:
+```bash
+kubectl create serviceaccount prometheus
+```
+If the needed `ClusterRole` is not created yet, we can create it by applyin the following manifest:
 ```yaml
-...
-        - name: JAEGER_AGENT_HOST
-          value: jaeger-agent
-        - name: JAEGER_AGENT_PORT
-          value: "6831"
-        - name: JAEGER_SERVICE_NAME
-          value: bookInfoAPI
-...
-```
-## Step 7: Check the traces
-Now in the Jaeger UI, let's try to find out what makes some of the requests to the `/book/{id}` endpoints so slow. What's the difference between slow ones and the fast ones? We can set the Max and Min duration filters to see them separately.
-![Jaeger Max 1 second](img/jaeger-max1.jpg)
-![Jaeger Min 3 seconds](img/jaeger-min3.jpg)
-It's easy to see that the slow requests call a different version of the stockAPI. It looks like there are two versions deployed, and there's an obvious improvement in the new version. But when we take a look at the services deployed in the cluster, we can see that there's only one service for the stockAPI called `stockapi`. Let's inspect it and find out why it redirects some of the requests to the old version.
-```bash
-kubectl get svc stockapi -o yaml
-```
-```yaml
-apiVersion: v1
-kind: Service
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
 metadata:
+  name: prometheus
+rules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  - nodes/metrics
+  - services
+  - endpoints
+  - pods
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources:
+  - configmaps
+  verbs: ["get"]
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  verbs: ["get", "list", "watch"]
+- nonResourceURLs: ["/metrics"]
+  verbs: ["get"]
+```
+Then add a `ClusterRoleBinding` to bind this `ClusterRole` to the `ServiceAccount` for our namespace by applying the following manifest:
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+- kind: ServiceAccount
+  name: prometheus
+  namespace: bookinfo
+```
+We have to create a Prometheus instance to scrape the metrics from our services. We can do this by applying the following manifest:
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: prometheus
+spec:
+  serviceAccountName: prometheus
+  serviceMonitorSelector:
+    matchLabels:
+      layer: api
+  resources:
+    requests:
+      memory: 100Mi
+  enableAdminAPI: false
+```
+After it's up and running, we should add `ServiceMonitor` objects to tell Prometheus to scrape the metrics from our services. We can do this by applying the following manifest:
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: svcmon-infoapi
+  labels:
+    app: infoapi
+    layer: api
+spec:
+  selector:
+    matchLabels:
+      app: infoapi
+      layer: api
+  endpoints:
+  - port: web
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: svcmon-stockapi
   labels:
     app: stockapi
     layer: api
-  name: stockapi
-  namespace: bookinfo
-  resourceVersion: "311459"
 spec:
-  clusterIP: 10.43.152.152
-  clusterIPs:
-  - 10.43.152.152
-  internalTrafficPolicy: Cluster
-  ipFamilies:
-  - IPv4
-  ipFamilyPolicy: SingleStack
-  ports:
-  - name: web
-    port: 5555
-    protocol: TCP
-    targetPort: 5555
   selector:
-    app: stockapi
-  sessionAffinity: None
-  type: ClusterIP
+    matchLabels:
+      app: stockapi
+      layer: api
+  endpoints:
+  - port: web
 ```
-The `selector` of the service is `app: stockapi`, which means that it will redirect all the requests to the pods with the label `app: stockapi`. Let's find which pods match the description.
+## Step 8: Add Grafana
+We can deploy Grafana, create a service and and ingress using the following command:
 ```bash
-kubectl get pods -l app=stockapi
+kubectl create -f https://raw.githubusercontent.com/ContainerSolutions/bookinfo/main/k8s/final/20-grafana.yaml
 ```
-```bash
-NAME                         READY   STATUS    RESTARTS   AGE
-stockapi-df585bc95-p4qqr     1/1     Running   0          41m
-stockapi2-64c4b4db69-x5vlm   1/1     Running   0          41m
-```
-It macthes two pods, each from different deployments. Let's check the labels of the pod templates of these deployments.
-```bash
-kubectl describe deploy stockapi
-```
-```yaml
-Pod Template:
-  Labels:  app=stockapi
-```
-```bash
-kubectl describe deploy stockapi2
-```
-```yaml
-Pod Template:
-  Labels:  app=stockapi
-           version=2
-```
-Clearly when someone deployed the new version, for some reason left the old version still running, but added a new label to the new version to separate it from the older one. But unfortunately forgot to add this new label to the `selector` of the service. Let's add it and check if all the requests go to the new version.
-```bash
-kubectl patch svc stockapi -p '{"spec":{"selector":{"app":"stockapi","version":"2"}}}'
-```
-then run the load again
-```bash
-hey -z 30s -c 50 -m GET http://boookinfo.localdev.me/book/636bd189db7a3afe9ac84af5
-```
-to see that all the requests are now fast.
-```bash
-Summary:
-  Total:	30.0385 secs
-  Slowest:	0.3552 secs
-  Fastest:	0.0057 secs
-  Average:	0.0838 secs
-  Requests/sec:	596.0346
+Now we can access to the grafana interface by navigating to `http://grf.localdev.me` and login with the default credentials `admin:admin`. We can add a Prometheus data source by clicking on the `Add data source` button and filling the `URL` field as `http://prometheus-operated:9090` which ic the service address of Prometheus instance. We can then click on the `Save & Test` button to test the connection and use this connection to create our dashboards.
 
-  Total data:	1790400 bytes
-  Size/request:	100 bytes
-
-Response time histogram:
-  0.006 [1]	    |
-  0.041 [2068]  |■■■■■■■■■■■■
-  0.076 [6883]  |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-  0.111 [5081]  |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-  0.145 [2364]  |■■■■■■■■■■■■■■
-  0.180 [983]   |■■■■■■
-  0.215 [301]   |■■
-  0.250 [102]   |■
-  0.285 [73]    |
-  0.320 [41]    |
-  0.355 [7]     |
-```
 
 [To continue](SOLUTION-3.md)

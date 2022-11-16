@@ -101,8 +101,9 @@ func (apiContext *APIContext) prepareContext(bindAddress *string) (*http.Server,
 	// Generic handlers
 	getR.HandleFunc("/", apiContext.Index)
 	getR.HandleFunc("/version", apiContext.Version)
-	getR.HandleFunc("/health/live", apiContext.Live)
-	getR.HandleFunc("/health/ready", apiContext.Ready)
+	getR.HandleFunc("/healthz/live", apiContext.Live)
+	getR.HandleFunc("/healthz/ready", apiContext.Ready)
+	log.Info().Msg("Health is available at /healthz/live and /healthz/ready")
 	// BookStock handlers
 	getR.HandleFunc("/book/{id}", apiContext.GetBookStock)
 	// Documentation handler

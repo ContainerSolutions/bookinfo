@@ -75,7 +75,53 @@ we can now see that we get more information about the error.
 2022/11/15 12:58:30 /book
 {"level":"error","error":"server selection error: server selection timeout, current topology: { Type: Unknown, Servers: [{ Addr: mongodb.svc:27017, Type: Unknown, Average RTT: 0, Last error: connection() error occured during connection handshake: dial tcp: lookup mongodb.svc on 10.43.0.10:53: no such host }, ] }","time":"2022-11-15T12:59:00Z","message":"Error getting BookInfos"}
 ```
-## Step 4: Fix the connection string error
+## Step 4: This shouldn't be happening on Kubernetes
+There's obviously something wrong with the connection to the database. It might be the related the MongoDB itself, but it might also be related to the way the connection is configured. But before jumping to the solution, we first make sure this won't happen again. A pod that's not working as intended should be known by Kubernetes, and it should be treated as such. Let's add a liveness and readiness probes to the pod. We can do this by editing the deployment. The application logs is informing us that there are endpoints for liveness and readiness probes, so let's use those.
+```bash
+{"level":"info","time":"2022-11-16T14:05:46+01:00","message":"Health is available at /healthz/live and /healthz/ready"}
+```
+```bash
+kubectl edit deployment infoapi
+```
+```yaml
+        readinessProbe:
+          httpGet:
+            path: /healthz/ready
+            port: 5550
+            scheme: HTTP
+          timeoutSeconds: 2
+          periodSeconds: 3
+          successThreshold: 1
+          failureThreshold: 5
+        livenessProbe:
+            httpGet:
+              path: /healthz/live
+              port: 5550
+              scheme: HTTP
+            timeoutSeconds: 2
+            periodSeconds: 3
+            successThreshold: 1
+            failureThreshold: 5
+        startupProbe:
+            httpGet:
+              path: /healthz/live
+              port: 5550
+            failureThreshold: 30
+            periodSeconds: 3
+```
+Now the pod should be restarted and the newly created pod looks like it's running but not ready.
+```bash
+NAME                             READY   STATUS    RESTARTS      AGE
+stockapi-7f88f897db-z9t2q        1/1     Running   0             20m
+mongodb-598cb69f49-wxq4m         1/1     Running   0             20m
+redis-794b86ddbd-7mzsg           1/1     Running   0             20m
+infoapi-58bf87f775-m2klw         1/1     Running   0             20m
+mongo-express-5c854f97c7-79mdc   1/1     Running   0             20m
+stockapi2-595b754b75-5kjm5       1/1     Running   0             10m
+infoapi-bcb7b5cfb-fwzl7          0/1     Running   0             7m29s
+```
+This shows that according to the developer of this service the pod is running, but it's not ready, which means restarting this pod will not resolve the issue, but it's not ready to serve. Let's investigate further and try to resolve the real problem.
+## Step 5: Fix the connection string error
 There's obviously something wrong with the connection to the database. The address mentioned in the error message is `mongodb.svc` but it should be just the service name for services within the same namespace, which is `mongodb`. Let's try to fix that by editing the deployment configuration.
 ```bash
 kubectl edit deployment infoapi

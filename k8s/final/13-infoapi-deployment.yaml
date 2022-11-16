@@ -27,8 +27,6 @@ spec:
           value: jaeger-agent
         - name: JAEGER_AGENT_PORT
           value: "6831"
-        - name: JAEGER_SERVICE_NAME
-          value: bookInfoAPI
         - name: ConnectionString
           value: mongodb://{username}:{password}@mongodb:27017
         - name: DatabaseName
@@ -50,7 +48,7 @@ spec:
             mountPath: /configuration
         readinessProbe:
           httpGet:
-            path: /health/ready
+            path: /healthz/ready
             port: 5550
             scheme: HTTP
           initialDelaySeconds: 3
@@ -60,7 +58,7 @@ spec:
           failureThreshold: 5
         livenessProbe:
             httpGet:
-              path: /health/live
+              path: /healthz/live
               port: 5550
               scheme: HTTP
             initialDelaySeconds: 3

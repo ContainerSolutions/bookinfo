@@ -25,8 +25,6 @@ spec:
           value: jaeger-agent
         - name: JAEGER_AGENT_PORT
           value: "6831"
-        - name: JAEGER_SERVICE_NAME
-          value: bookStockAPI1
         - name: ConnectionString
           value: redis:6379
         - name: DatabaseName
@@ -38,7 +36,7 @@ spec:
             mountPath: /configuration
         readinessProbe:
           httpGet:
-            path: /health/ready
+            path: /healthz/ready
             port: 5555
             scheme: HTTP
           initialDelaySeconds: 3
@@ -48,7 +46,7 @@ spec:
           failureThreshold: 5
         livenessProbe:
             httpGet:
-              path: /health/live
+              path: /healthz/live
               port: 5555
               scheme: HTTP
             initialDelaySeconds: 3
