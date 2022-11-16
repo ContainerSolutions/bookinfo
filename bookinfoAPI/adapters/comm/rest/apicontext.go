@@ -1,3 +1,8 @@
+// Package rest BookInfo API.
+//
+// # This service provides generic book information
+//
+// swagger:meta
 package rest
 
 import (
@@ -6,6 +11,7 @@ import (
 	"time"
 
 	"github.com/ContainerSolutions/bookinfo/bookInfoAPI/application"
+	"github.com/nicholasjackson/env"
 
 	middleware "github.com/ContainerSolutions/bookinfo/bookInfoAPI/adapters/comm/rest/middleware"
 	"github.com/gorilla/mux"
@@ -54,8 +60,12 @@ func (apiContext *APIContext) prepareContext(bindAddress *string) (*http.Server,
 	// Sample configuration for testing. Use constant sampling to sample every trace
 	// and enable LogSpan to log every span via configured Logger.
 	cfg, err := jaegercfg.FromEnv()
-	if err != nil || cfg.ServiceName == "" {
+	var jaegerAddress = env.String("JAEGER_AGENT_HOST", false, "", "")
+	var jaegerPort = env.String("JAEGER_AGENT_PORT", false, "", "")
+	env.Parse()
+	if err != nil || *jaegerAddress == "" || *jaegerPort == "" {
 		log.Error().Err(err).Msg("Cannot load tracer config from env")
+		log.Info().Msgf("Tracer configuration can be set via the following environment variables JAEGER_AGENT_HOST - the host name of the jaeger agent JAEGER_AGENT_PORT - the port number of the jaeger agent")
 		cfg = &jaegercfg.Configuration{
 			ServiceName: "bookInfoAPI",
 			Sampler:     &jaegercfg.SamplerConfig{},
@@ -82,6 +92,7 @@ func (apiContext *APIContext) prepareContext(bindAddress *string) (*http.Server,
 	// create a new serve mux and register the handlers
 	sm := mux.NewRouter()
 	sm.Use(middleware.MetricsMiddleware)
+	log.Info().Msg("Metrics are available at /metrics")
 
 	// handlers for API
 	getR := sm.Methods(http.MethodGet).Subrouter()
@@ -92,6 +103,7 @@ func (apiContext *APIContext) prepareContext(bindAddress *string) (*http.Server,
 	getR.HandleFunc("/health/ready", apiContext.Ready)
 	// BookInfo handlers
 	getR.HandleFunc("/book", apiContext.GetBookInfos)
+	getR.HandleFunc("/book/", apiContext.GetBookInfos)
 	getR.HandleFunc("/book/{id}", apiContext.GetBookInfo)
 	// Documentation handler
 	opts := openapimw.RedocOpts{SpecURL: "/swagger.yaml"}

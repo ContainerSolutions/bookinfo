@@ -1,3 +1,19 @@
+info:
+    description: |-
+        # This service provides generic book information
+
+        This service serves its metrics on /metrics endpoint ready for prometheus to scrape
+
+        This service serves its documentation on /docs endpoint
+
+        This service can report its span data to a jaeger agent. To enable this, set the following environment variables
+
+        JAEGER_AGENT_HOST - the host name of the jaeger agent
+
+        JAEGER_AGENT_PORT - the port number of the jaeger agent
+
+        JAEGER_SERVICE_NAME - the name of the service to report to the jaeger agent (e.g. bookInfoAPI)//
+    title: BookInfo API.
 paths:
     /:
         get:

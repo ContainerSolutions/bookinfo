@@ -16,7 +16,7 @@ spec:
         app: infoapi
     spec:
       containers:
-      - image: serdarkalayci/bookinfo-info:0.1
+      - image: serdarkalayci/bookinfo-info:2.1
         name: bookinfo-api
         env:
         - name: BASE_URL

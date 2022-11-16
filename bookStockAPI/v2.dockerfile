@@ -23,5 +23,6 @@ ADD static/version.txt /go/bin/static/version.txt
 ADD configuration/livesettings.json /go/bin/configuration/livesettings.json
 ADD swagger.yaml /go/bin/swagger.yaml
 ENV BASE_URL :5550
+ENV JAEGER_SERVICE_NAME bookStockAPIv2
 # Run the hello binary.
 ENTRYPOINT ["/go/bin/bookStockAPI"]

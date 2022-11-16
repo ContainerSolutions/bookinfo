@@ -16,7 +16,7 @@ spec:
         app: stockapi
     spec:
       containers:
-      - image: serdarkalayci/bookinfo-stock:1.1
+      - image: serdarkalayci/bookinfo-stock:2.1
         name: bookstock-api
         env:
         - name: BASE_URL

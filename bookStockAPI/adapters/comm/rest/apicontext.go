@@ -1,3 +1,8 @@
+// Package rest BookStock API.
+//
+// # This service provides book stock information
+//
+// swagger:meta
 package rest
 
 import (
@@ -6,6 +11,7 @@ import (
 	"time"
 
 	"github.com/ContainerSolutions/bookinfo/bookStockAPI/application"
+	"github.com/nicholasjackson/env"
 
 	middleware "github.com/ContainerSolutions/bookinfo/bookStockAPI/adapters/comm/rest/middleware"
 	"github.com/gorilla/mux"
@@ -56,8 +62,12 @@ func (apiContext *APIContext) prepareContext(bindAddress *string) (*http.Server,
 	// Sample configuration for testing. Use constant sampling to sample every trace
 	// and enable LogSpan to log every span via configured Logger.
 	cfg, err := jaegercfg.FromEnv()
-	if err != nil || cfg.ServiceName == "" {
+	var jaegerAddress = env.String("JAEGER_AGENT_HOST", false, "", "")
+	var jaegerPort = env.String("JAEGER_AGENT_PORT", false, "", "")
+	env.Parse()
+	if err != nil || *jaegerAddress == "" || *jaegerPort == "" {
 		log.Error().Err(err).Msg("Cannot load tracer config from env")
+		log.Info().Msgf("Tracer configuration can be set via the following environment variables JAEGER_AGENT_HOST - the host name of the jaeger agent JAEGER_AGENT_PORT - the port number of the jaeger agent JAEGER_SERVICE_NAME - the name of the service to report to the jaeger agent (e.g. bookInfoAPI)")
 		cfg = &jaegercfg.Configuration{
 			ServiceName: "bookInfoAPI",
 			Sampler:     &jaegercfg.SamplerConfig{},
@@ -84,6 +94,7 @@ func (apiContext *APIContext) prepareContext(bindAddress *string) (*http.Server,
 	// create a new serve mux and register the handlers
 	sm := mux.NewRouter()
 	sm.Use(middleware.MetricsMiddleware)
+	log.Info().Msg("Metrics are available at /metrics")
 
 	// handlers for API
 	getR := sm.Methods(http.MethodGet).Subrouter()

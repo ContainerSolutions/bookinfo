@@ -19,7 +19,7 @@ spec:
         version: "2"
     spec:
       containers:
-      - image: serdarkalayci/bookinfo-stock:1.2
+      - image: serdarkalayci/bookinfo-stock:2.2
         name: bookstock-api
         env:
         - name: BASE_URL
