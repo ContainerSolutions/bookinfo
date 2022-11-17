@@ -2,8 +2,8 @@
 
 ⚠️ WARNING: This file explains steps to be taken to complete the lab. Do not read this file until you have attempted the lab yourself.
 
-## Step 1: Try to find out what's wrong with bookinfoAPI
-Let's start by checking the logs of the bookinfoAPI pod. We can do this by running the following command:
+## Step 1: Try to find out what's wrong with bookInfoAPI
+Let's start by checking the logs of the bookInfoAPI pod. We can do this by running the following command:
 
 ```bash
 kubectl logs -l app=infoapi
