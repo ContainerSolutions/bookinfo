@@ -9,7 +9,6 @@ services:
       BASE_URL : ":5550"
       JAEGER_AGENT_HOST : "jaeger"
       JAEGER_AGENT_PORT : 6831
-      JAEGER_SERVICE_NAME: bookInfoAPI
       STOCK_URL: "http://bookstockapi:5555"
       ConnectionString: "mongodb://{username}:{password}@mongo:27017"
       DatabaseName: bookInfo
@@ -28,7 +27,6 @@ services:
       BASE_URL : ":5555"
       JAEGER_AGENT_HOST : "jaeger"
       JAEGER_AGENT_PORT : 6831
-      JAEGER_SERVICE_NAME: bookStockAPI
       ConnectionString: "redis:6379"
       DatabaseName: 0
       DbPassword: secret

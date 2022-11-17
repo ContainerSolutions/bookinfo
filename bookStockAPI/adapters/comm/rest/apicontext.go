@@ -67,7 +67,7 @@ func (apiContext *APIContext) prepareContext(bindAddress *string) (*http.Server,
 	env.Parse()
 	if err != nil || *jaegerAddress == "" || *jaegerPort == "" {
 		log.Error().Err(err).Msg("Cannot load tracer config from env")
-		log.Info().Msgf("Tracer configuration can be set via the following environment variables JAEGER_AGENT_HOST - the host name of the jaeger agent JAEGER_AGENT_PORT - the port number of the jaeger agent JAEGER_SERVICE_NAME - the name of the service to report to the jaeger agent (e.g. bookInfoAPI)")
+		log.Info().Msgf("Tracer configuration can be set via the following environment variables JAEGER_AGENT_HOST - the host name of the jaeger agent JAEGER_AGENT_PORT - the port number of the jaeger agent")
 		cfg = &jaegercfg.Configuration{
 			ServiceName: "bookInfoAPI",
 			Sampler:     &jaegercfg.SamplerConfig{},

@@ -10,9 +10,7 @@ info:
 
         JAEGER_AGENT_HOST - the host name of the jaeger agent
 
-        JAEGER_AGENT_PORT - the port number of the jaeger agent
-
-        JAEGER_SERVICE_NAME - the name of the service to report to the jaeger agent (e.g. bookInfoAPI)//
+        JAEGER_AGENT_PORT - the port number of the jaeger agent//
     title: BookInfo API.
 paths:
     /:

@@ -54,7 +54,7 @@ We can clearly see that the response time is very low, which means that the prob
 We should notice there's a line in the log of the infoAPI mentioning tracer config not found on the environment variables. And if you set the log level to `Info` you'll see what environment variables have to be set in order to get the tracer working.
 ```bash
 {"level":"error","time":"2022-11-16T08:23:08Z","message":"Cannot load tracer config from env"}
-{"level":"info","time":"2022-11-16T10:26:07+01:00","message":"Tracer configuration can be set via the following environment variables JAEGER_AGENT_HOST - the host name of the jaeger agent JAEGER_AGENT_PORT - the port number of the jaeger agent JAEGER_SERVICE_NAME - the name of the service to report to the jaeger agent (e.g. bookInfoAPI)"}
+{"level":"info","time":"2022-11-16T10:26:07+01:00","message":"Tracer configuration can be set via the following environment variables JAEGER_AGENT_HOST - the host name of the jaeger agent JAEGER_AGENT_PORT - the port number of the jaeger agent"}
 ```
 
 ## Step 10: Enter tracing
@@ -73,8 +73,6 @@ Now we can add those environment variables to the API deployments (there should 
           value: jaeger-agent
         - name: JAEGER_AGENT_PORT
           value: "6831"
-        - name: JAEGER_SERVICE_NAME
-          value: bookInfoAPI
 ...
 ```
 ## Step 7: Check the traces
