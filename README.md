@@ -5,8 +5,8 @@ Besides the expected functional endpoints, the API will expose these endpoints f
 | Path            | Purpose             |
 |-----------------|---------------------|
 | `/metrics`      | The metrics endpoint will be exposing metrics of the API to be consumed by Prometheus | 
-| `/health/live`  | This endpoint will be the liveness probe's target. It returns 200 OK if the server is up and running |
-| `/health/ready` | This endpoint will be the readiness probe's target. It checks the database connection and returns `200 OK` if connection is good |
+| `/healthz/live`  | This endpoint will be the liveness probe's target. It returns 200 OK if the server is up and running |
+| `/healthz/ready` | This endpoint will be the readiness probe's target. It checks the database connection and returns `200 OK` if connection is good |
 | `/version`      | This endpoint simply reads the version.txt file inside the static folder. Normally version.txt will contain a token instead of a version number which can be replaced by the pipeline |
 | `/docs`         | This endpoint uses redoc interface to show the OpenAPI documentation of the API |
 
